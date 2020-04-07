@@ -38,6 +38,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.9",
     "chart.js": "^2.9.3",
+    "chartjs-node-canvas": "^3.0.6",
     "cuint": "^0.2.2",
     "lodash.merge": "^4.6.2",
     "lodash.zip": "^4.2.0",
