@@ -5,11 +5,9 @@ const {
   patternReducer,
   averageReducer,
 } = require("./v2/optimizer");
-const fs = require("fs");
 
 const width = 600; //px
 const height = 400; //px
-const filename = "predict.png";
 const backgroundColor = "#D8F1E1";
 
 const canvasRenderService = new CanvasRenderService(
@@ -82,25 +80,11 @@ const generateData = (filter) => {
   ];
 };
 
-(async () => {
+const renderToBuffer = async (filter) => {
   const configuration = {
     type: "line",
     data: {
-      datasets: generateData([
-        93,
-        undefined,
-        undefined,
-        180,
-        356,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      ]),
+      datasets: generateData(filter),
       labels: "Mon Tue Wed Thu Fri Sat"
         .split(" ")
         .reduce((acc, day) => [...acc, `${day} AM`, `${day} PM`], []),
@@ -127,9 +111,9 @@ const generateData = (filter) => {
       },
     },
   };
-  const image = await canvasRenderService.renderToBuffer(configuration);
-  fs.writeFile(filename, image, function (err) {
-    if (err) return console.log(err);
-    console.log(`wrote to ${filename}`);
-  });
-})();
+  return await canvasRenderService.renderToBuffer(configuration);
+};
+
+module.exports = {
+  renderToBuffer,
+};
