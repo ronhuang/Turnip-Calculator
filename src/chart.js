@@ -8,14 +8,16 @@ const {
 } = require("./v2/optimizer");
 const i18n = require("./i18n");
 
-const width = 600; //px
-const height = 400; //px
+const width = 1280; //px
+const height = 720; //px
 const backgroundColor = "#D8F1E1";
+const fontSize = 24;
 
 const canvasRenderService = new CanvasRenderService(
   width,
   height,
   (ChartJS) => {
+    ChartJS.defaults.global.defaultFontSize = fontSize;
     ChartJS.plugins.register({
       beforeDraw: (chart) => {
         const ctx = chart.ctx;
