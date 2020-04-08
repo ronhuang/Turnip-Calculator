@@ -4,7 +4,9 @@ const {
   possiblePatterns,
   patternReducer,
   averageReducer,
+  minWeekReducer,
 } = require("./v2/optimizer");
+const i18n = require("./i18n");
 
 const width = 600; //px
 const height = 400; //px
@@ -32,27 +34,38 @@ const generateData = (filter) => {
   const minMaxData = zip(...minMaxPattern);
   const avgPattern = patternReducer(patterns, averageReducer);
   const avgData = zip(...avgPattern);
+  const [minWeekValue] = patternReducer(patterns, minWeekReducer);
 
   return [
     {
-      label: "Buy Price",
+      label: i18n.t("Buy Price"),
       data: new Array(12).fill(filter[0] || null),
       fill: true,
       backgroundColor: "transparent",
       borderColor: "#7B6C53",
       pointRadius: 0,
       pointHoverRadius: 0,
-      borderDash: [3, 9],
+      borderDash: [5, 15],
     },
     {
-      label: "Yours",
+      label: i18n.t("Guaranteed Min"),
+      data: new Array(12).fill(minWeekValue || null),
+      fill: true,
+      backgroundColor: "transparent",
+      borderColor: "#007D75",
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      borderDash: [3, 6],
+    },
+    {
+      label: i18n.t("Daily Price"),
       data: Array.from({ length: 12 }, (v, i) => filter[i + 1] || null),
       fill: false,
       backgroundColor: "#EF8341",
       borderColor: "#EF8341",
     },
     {
-      label: "Average",
+      label: i18n.t("Average"),
       data: avgData[0] ? avgData[0].map(Math.trunc) : new Array(12).fill(null),
       backgroundColor: "#F0E16F",
       borderColor: "#F0E16F",
@@ -60,22 +73,22 @@ const generateData = (filter) => {
       fill: false,
     },
     {
-      label: "Maximum",
+      label: i18n.t("Maximum"),
       data: minMaxData[1] || new Array(12).fill(null),
       backgroundColor: "#A5D5A5",
       borderColor: "#A5D5A5",
       pointRadius: 0,
       pointHoverRadius: 0,
-      fill: 2,
+      fill: 3,
     },
     {
-      label: "Minimum",
+      label: i18n.t("Minimum"),
       data: minMaxData[0] || new Array(12).fill(null),
       backgroundColor: "#88C9A1",
       borderColor: "#88C9A1",
       pointRadius: 0,
       pointHoverRadius: 0,
-      fill: 2,
+      fill: 3,
     },
   ];
 };
@@ -85,9 +98,17 @@ const renderToBuffer = async (filter) => {
     type: "line",
     data: {
       datasets: generateData(filter),
-      labels: "Mon Tue Wed Thu Fri Sat"
+      labels: i18n
+        .t("Mon Tue Wed Thu Fri Sat")
         .split(" ")
-        .reduce((acc, day) => [...acc, `${day} AM`, `${day} PM`], []),
+        .reduce(
+          (acc, day) => [
+            ...acc,
+            `${day} ${i18n.t("AM")}`,
+            `${day} ${i18n.t("PM")}`,
+          ],
+          []
+        ),
     },
     options: {
       maintainAspectRatio: false,
@@ -108,6 +129,11 @@ const renderToBuffer = async (filter) => {
             },
           },
         ],
+      },
+      elements: {
+        line: {
+          cubicInterpolationMode: "monotone",
+        },
       },
     },
   };
