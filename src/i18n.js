@@ -28,7 +28,7 @@ i18n
       ],
     },
 
-    fallbackLng: "en",
+    fallbackLng: "zh-TW",
 
     keySeparator: false, // we use content as keys
 
