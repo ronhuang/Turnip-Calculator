@@ -102,7 +102,7 @@ async function handleEvent(event) {
       type: "image",
       originalContentUrl: url.resolve(baseUrl, `/chart/${id}`),
       previewImageUrl: url.resolve(baseUrl, `/chart/${id}`),
-      quickReply: quickReply,
+      quickReply: event.source.type !== "group" ? quickReply : undefined,
     });
   }
 
