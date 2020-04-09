@@ -55,7 +55,9 @@ async function updatePrice(userId, price, dayOfWeek, ampm) {
 async function getPrices(userId) {
   const row = await knex("prices").where("user_id", userId).first();
 
-  return "values" in row ? JSON.parse(row["values"]) : new Array(13).fill(0);
+  return row !== undefined && "values" in row
+    ? JSON.parse(row["values"])
+    : new Array(13).fill(0);
 }
 
 async function deletePrices(userId) {
