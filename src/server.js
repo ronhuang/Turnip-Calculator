@@ -106,7 +106,7 @@ async function handleEvent(event) {
     });
   }
 
-  const buyRe = /^(購買|b)(價格)?\s*(\d+)\s*$/gi;
+  const buyRe = /^(購買|b)(價格)?\s*(\d+)\s*(鈴錢)?$/gi;
   const buyMatch = buyRe.exec(text);
   if (buyMatch) {
     const price = buyMatch[3];
@@ -126,7 +126,7 @@ async function handleEvent(event) {
     }
   }
 
-  const dailyRe = /^(週|星期)?(一|二|三|四|五|六|1|2|3|4|5|6)\s*(上|下|a|p)午?\s*(\d+)\s*$/gi;
+  const dailyRe = /^(週|星期)?(一|二|三|四|五|六|1|2|3|4|5|6)\s*(上|下|a|p)午?\s*(\d+)\s*(鈴錢)?$/gi;
   const dailyMatch = dailyRe.exec(text);
   if (dailyMatch) {
     const dayOfWeek = dailyMatch[2];
