@@ -5,7 +5,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "watch": "nodemon --exec npm start",
+    "migrate": "knex migrate:latest"
   },
   "devDependencies": {
     "eslint": "^6.8.0",

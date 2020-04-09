@@ -5,22 +5,11 @@ const line = require("@line/bot-sdk");
 const url = require("url");
 const { renderToBuffer } = require("./chart");
 const codec = require("json-url")("lzw");
-const knex = require("knex")(
-  require("../knexfile")[process.env.NODE_ENV || "development"]
-);
+const { deletePrices, getPrices, updatePrice } = require("./model");
 
 const config = {
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.CHANNEL_SECRET,
-};
-
-const zhTWNumberMap = {
-  一: 1,
-  二: 2,
-  三: 3,
-  四: 4,
-  五: 5,
-  六: 6,
 };
 
 const baseUrl = process.env.BASE_URL;
@@ -31,6 +20,71 @@ if (!baseUrl) {
 const app = express();
 const client = new line.Client(config);
 
+const dayMap = {
+  1: "一",
+  2: "二",
+  3: "三",
+  4: "四",
+  5: "五",
+  6: "六",
+  一: "一",
+  二: "二",
+  三: "三",
+  四: "四",
+  五: "五",
+  六: "六",
+};
+const timeMap = {
+  a: "上",
+  p: "下",
+  A: "上",
+  P: "下",
+  上: "上",
+  下: "下",
+};
+
+const quickReply = {
+  items: [
+    {
+      type: "action",
+      action: {
+        type: "message",
+        label: "我的分析圖",
+        text: "我的分析圖",
+      },
+    },
+    {
+      type: "action",
+      action: {
+        type: "message",
+        label: "清除資料",
+        text: "清除資料",
+      },
+    },
+    {
+      type: "action",
+      action: {
+        type: "message",
+        label: "幫助",
+        text: "幫助",
+      },
+    },
+  ],
+};
+const helpText = `指令範例：
+
+購買價格 100
+購買100
+b100
+週一 上午 90
+一上90
+1a90
+週三 下午 80
+三下80
+3p90
+我的分析圖
+清除資料`;
+
 // event webhook handler
 async function handleEvent(event) {
   if (event.type !== "message" || event.message.type !== "text") {
@@ -40,85 +94,98 @@ async function handleEvent(event) {
 
   const text = event.message.text;
 
-  if (/我的分析圖/g.test(text)) {
-    const fake = [
-      93,
-      null,
-      null,
-      180,
-      356,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-    ];
-    const id = await codec.compress(fake);
+  if (/^(我的)?分析圖$/gi.test(text)) {
+    const prices = await getPrices(event.source.userId);
+    const id = await codec.compress(prices);
 
     return client.replyMessage(event.replyToken, {
       type: "image",
       originalContentUrl: url.resolve(baseUrl, `/chart/${id}`),
       previewImageUrl: url.resolve(baseUrl, `/chart/${id}`),
+      quickReply: quickReply,
     });
   }
 
-  const inputRe = /^\s*(週|星期)(一|二|三|四|五|六)\s*(上|下)午\s*(\d+)\s*$/g;
-  const inputMatch = inputRe.exec(text);
-  if (inputMatch) {
-    const dayOfWeek = inputMatch[2];
-    const ampm = inputMatch[3];
-    const price = inputMatch[4];
-    const index = (zhTWNumberMap[dayOfWeek] - 1) * 2 + (ampm === "上" ? 1 : 2);
+  const buyRe = /^(購買|b)(價格)?\s*(\d+)\s*$/gi;
+  const buyMatch = buyRe.exec(text);
+  if (buyMatch) {
+    const price = buyMatch[3];
+    await updatePrice(event.source.userId, price);
 
-    const records = await knex("prices")
-      .select("prices")
-      .where("user_id", event.source.userId);
-    console.log(`records: ${JSON.stringify(records)}`);
-    if (
-      Array.isArray(records) &&
-      records.length === 1 &&
-      "prices" in records[0]
-    ) {
-      const prices = JSON.parse(records[0]["prices"]);
-      prices[index] = price;
-      await knex("prices")
-        .where({ user_id: event.source.userId })
-        .update({ prices: JSON.stringify(prices) });
-    } else {
-      const prices = new Array(13).fill(0);
-      prices[index] = price;
-      await knex("prices").insert({
-        user_id: event.source.userId,
-        prices: JSON.stringify(prices),
-      });
+    const updated = await getPrices(event.source.userId);
+    console.log(`updated records: ${JSON.stringify(updated)}`);
+
+    const msg = {
+      type: "text",
+      text: `購買價格 ${price} 鈴錢`,
+      quickReply: quickReply,
+    };
+    // don't reply if in group
+    if (event.source.type !== "group") {
+      return client.replyMessage(event.replyToken, msg);
     }
-
-    const updatedRecords = await knex("prices")
-      .select("prices")
-      .where("user_id", event.source.userId);
-    console.log(`updated records: ${JSON.stringify(updatedRecords)}`);
-
-    return client.replyMessage(event.replyToken, {
-      type: "text",
-      text: `週${dayOfWeek} ${ampm}午 ${price} 鈴錢`,
-    });
   }
 
-  if (/^清除全部資料$/g.test(text)) {
-    return client.replyMessage(event.replyToken, {
+  const dailyRe = /^(週|星期)?(一|二|三|四|五|六|1|2|3|4|5|6)\s*(上|下|a|p)午?\s*(\d+)\s*$/gi;
+  const dailyMatch = dailyRe.exec(text);
+  if (dailyMatch) {
+    const dayOfWeek = dailyMatch[2];
+    const ampm = dailyMatch[3];
+    const price = dailyMatch[4];
+    await updatePrice(event.source.userId, price, dayOfWeek, ampm);
+
+    const updated = await getPrices(event.source.userId);
+    console.log(`updated records: ${JSON.stringify(updated)}`);
+
+    const msg = {
       type: "text",
-      text: "清除全部資料",
-    });
+      text: `週${dayMap[dayOfWeek]}${timeMap[ampm]}午 ${price} 鈴錢`,
+      quickReply: quickReply,
+    };
+    // don't reply if in group
+    if (event.source.type !== "group") {
+      return client.replyMessage(event.replyToken, msg);
+    }
   }
 
-  if (/^幫助$/g.test(text)) {
-    return client.replyMessage(event.replyToken, {
+  if (/^清除資料$/gi.test(text)) {
+    await deletePrices(event.source.userId);
+
+    const msg = {
       type: "text",
-      text: "幫助",
-    });
+      text: "資料已清除",
+      quickReply: quickReply,
+    };
+    // don't reply if in group
+    if (event.source.type !== "group") {
+      return client.replyMessage(event.replyToken, msg);
+    }
+  }
+
+  if (/^(幫助|\?|？)$/gi.test(text)) {
+    const msg = {
+      type: "text",
+      text: helpText,
+      quickReply: quickReply,
+    };
+    // don't reply if in group
+    if (event.source.type !== "group") {
+      return client.replyMessage(event.replyToken, msg);
+    }
+  }
+
+  if (/^debug$/gi.test(text)) {
+    const prices = await getPrices(event.source.userId);
+
+    const msg = {
+      type: "text",
+      text: JSON.stringify(prices),
+      quickReply: quickReply,
+    };
+    // don't reply if in group
+    if (event.source.type !== "group") {
+      return client.replyMessage(event.replyToken, msg);
+    }
   }
 }
 
