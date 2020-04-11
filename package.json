@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node -r esm src/server.js",
     "watch": "nodemon --exec npm start",
     "migrate": "knex migrate:latest"
   },
@@ -19,6 +19,7 @@
     "@line/bot-sdk": "^6.8.4",
     "chart.js": "^2.9.3",
     "chartjs-node-canvas": "^3.0.6",
+    "esm": "^3.2.25",
     "express": "^4.17.1",
     "i18next": "^19.3.4",
     "i18next-browser-languagedetector": "^4.0.2",

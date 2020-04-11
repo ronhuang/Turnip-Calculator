@@ -1,32 +1,19 @@
+import React, { useRef, useCallback, useEffect } from "react";
+import { arrayOf, number } from "prop-types";
+import Chart from "chart.js";
 import zip from "lodash.zip";
+import merge from "lodash.merge";
+import { Box } from "@material-ui/core";
+import { useDebounce } from "react-use";
+import { useTranslation } from "react-i18next";
 import {
   possiblePatterns,
   patternReducer,
   averageReducer,
   minWeekReducer,
-} from "./utils/patterns";
-import i18n from "./i18n";
-import { CanvasRenderService } from "chartjs-node-canvas";
+} from "../utils";
 
-const width = 1280; //px
-const height = 720; //px
-const backgroundColor = "#D8F1E1";
-const fontSize = 24;
-
-const canvasRenderService = new CanvasRenderService(
-  width,
-  height,
-  (ChartJS) => {
-    ChartJS.defaults.global.defaultFontSize = fontSize;
-    ChartJS.plugins.register({
-      beforeDraw: (chart) => {
-        const ctx = chart.ctx;
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, width, height);
-      },
-    });
-  }
-);
+Chart.defaults.global.defaultFontFamily = "Arial Rounded MT Bold";
 
 const createGenerteData = (t) => (filter) => {
   let patterns = possiblePatterns(filter);
@@ -115,7 +102,7 @@ const chartOptions = {
     yAxes: [
       {
         gridLines: {
-          display: true,
+          display: false,
         },
         ticks: {
           suggestedMin: 0,
@@ -131,20 +118,57 @@ const chartOptions = {
   },
 };
 
-const t = i18n.t.bind(i18n);
-const generateData = createGenerteData(t);
-const getLabels = createGetLabels(t);
+const ChartComponent = ({ filter }) => {
+  const canvas = useRef();
+  const chart = useRef();
+  const { t } = useTranslation();
+  const generateData = useCallback(createGenerteData(t), [t]);
+  const getLabels = useCallback(createGetLabels(t), [t]);
 
-const renderToBuffer = async (filter) => {
-  const configuration = {
-    type: "line",
-    data: {
-      datasets: generateData(filter),
-      labels: getLabels(),
+  // onMount effect
+  useEffect(() => {
+    const ctx = canvas.current.getContext("2d");
+    chart.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        datasets: generateData(filter),
+        labels: getLabels(),
+      },
+      options: chartOptions,
+    });
+  }, []);
+
+  // Language labels chart effect
+  useEffect(() => {
+    if (!chart.current) return;
+    // this is necessary, or else labels won't change language until reload
+    const newLabels = getLabels();
+    merge(chart.current.data.labels, newLabels);
+    chart.current.update();
+  }, [getLabels]);
+
+  // Filters / Data effect
+  useDebounce(
+    () => {
+      if (!chart.current) return;
+      // regerates chart in the new
+      const newData = generateData(filter, t);
+      merge(chart.current.data.datasets, newData);
+      chart.current.update();
     },
-    options: chartOptions,
-  };
-  return await canvasRenderService.renderToBuffer(configuration);
+    500,
+    [filter, generateData]
+  );
+
+  return (
+    <Box p={2} mt={2} borderRadius={16} bgcolor="bkgs.chart">
+      <canvas ref={canvas} width={600} height={400} />
+    </Box>
+  );
 };
 
-export { renderToBuffer };
+ChartComponent.propTypes = {
+  filter: arrayOf(number).isRequired,
+};
+
+export default ChartComponent;

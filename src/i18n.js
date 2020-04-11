@@ -1,15 +1,19 @@
-const i18n = require("i18next");
-const LanguageDetector = require("i18next-browser-languagedetector");
+import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-const translationEn = require("../locales/en/translation.json");
-const translationEs = require("../locales/es/translation.json");
-const translationDe = require("../locales/de/translation.json");
-const translationFr = require("../locales/fr/translation.json");
-const translationIt = require("../locales/it/translation.json");
-const translationKr = require("../locales/kr/translation.json");
-const translationZhCN = require("../locales/zh-CN/translation.json");
-const translationZhTW = require("../locales/zh-TW/translation.json");
-const translationZhHK = require("../locales/zh-HK/translation.json");
+import translationEn from "../locales/en/translation.json";
+import translationEs from "../locales/es/translation.json";
+import translationDe from "../locales/de/translation.json";
+import translationFr from "../locales/fr/translation.json";
+import translationNl from "../locales/nl/translation.json";
+import translationIt from "../locales/it/translation.json";
+import translationKo from "../locales/ko/translation.json";
+import translationZhCN from "../locales/zh-CN/translation.json";
+import translationZhTW from "../locales/zh-TW/translation.json";
+import translationZhHK from "../locales/zh-HK/translation.json";
+import translationJa from "../locales/ja/translation.json";
+import translationPtBR from "../locales/pt-br/translation.json";
+import translationRu from "../locales/ru/translation.json";
 
 i18n
   .use(LanguageDetector)
@@ -17,7 +21,7 @@ i18n
     // we init with resources
     debug: true,
     detection: {
-      // order and = require("where user language should be detected
+      // order and from where user language should be detected
       order: [
         "querystring",
         "cookie",
@@ -53,8 +57,11 @@ i18n
       it: {
         translations: translationIt,
       },
-      kr: {
-        translations: translationKr,
+      nl: {
+        translations: translationNl,
+      },
+      ko: {
+        translations: translationKo,
       },
       zh: {
         translations: translationZhCN,
@@ -68,6 +75,18 @@ i18n
       "zh-HK": {
         translations: translationZhHK,
       },
+      ja: {
+        translations: translationJa,
+      },
+      "pt-BR": {
+        translations: translationPtBR
+      },
+      "pt": {
+        translations: translationPtBR
+      },
+      ru: {
+        translations: translationRu
+      },
     },
 
     // have a common namespace used around the full app
@@ -75,4 +94,4 @@ i18n
     defaultNS: "translations",
   });
 
-module.exports = i18n;
+export default i18n;

@@ -1,7 +1,7 @@
-const knex = require("knex")(
-  require("../knexfile")[process.env.NODE_ENV || "development"]
-);
+import Knex from "knex";
+import KnexConfig from "../knexfile";
 
+const knex = Knex(KnexConfig[process.env.NODE_ENV || "development"]);
 const dayMap = {
   一: 1,
   二: 2,
@@ -64,8 +64,4 @@ async function deletePrices(userId) {
   await knex("prices").where("user_id", userId).delete();
 }
 
-module.exports = {
-  deletePrices,
-  getPrices,
-  updatePrice,
-};
+export { deletePrices, getPrices, updatePrice };

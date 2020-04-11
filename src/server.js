@@ -1,11 +1,11 @@
 "use strict";
 
-const express = require("express");
-const line = require("@line/bot-sdk");
-const url = require("url");
-const { renderToBuffer } = require("./chart");
-const codec = require("json-url")("lzw");
-const { deletePrices, getPrices, updatePrice } = require("./model");
+import express from "express";
+import * as line from "@line/bot-sdk";
+import url from "url";
+import jsonUrl from "json-url";
+import { renderToBuffer } from "./chart";
+import { deletePrices, getPrices, updatePrice } from "./model";
 
 const config = {
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
@@ -19,6 +19,7 @@ if (!baseUrl) {
 
 const app = express();
 const client = new line.Client(config);
+const codec = jsonUrl("lzw");
 
 const dayMap = {
   1: "一",
