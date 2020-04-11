@@ -94,7 +94,7 @@ async function handleEvent(event) {
 
   const text = event.message.text;
 
-  if (/^(我的)?分析圖$/gi.test(text)) {
+  if (/^((我|俺|林北|林祖媽)的)?分析圖$/gi.test(text)) {
     const prices = await getPrices(event.source.userId);
     const id = await codec.compress(prices);
 
