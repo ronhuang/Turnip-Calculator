@@ -112,17 +112,15 @@ const chartOptions = {
     mode: "index",
   },
   scales: {
-    yAxes: [
-      {
-        gridLines: {
-          display: true,
-        },
-        ticks: {
-          suggestedMin: 0,
-          suggestedMax: 300,
-        },
+    y: {
+      gridLines: {
+        display: true,
       },
-    ],
+      ticks: {
+        suggestedMin: 0,
+        suggestedMax: 300,
+      },
+    },
   },
   elements: {
     line: {
@@ -135,11 +133,11 @@ const t = i18n.t.bind(i18n);
 const generateData = createGenerteData(t);
 const getLabels = createGetLabels(t);
 
-const renderToBuffer = async (filter) => {
+const renderToBuffer = async (filters) => {
   const configuration = {
     type: "line",
     data: {
-      datasets: generateData(filter),
+      datasets: generateData(filters),
       labels: getLabels(),
     },
     options: chartOptions,

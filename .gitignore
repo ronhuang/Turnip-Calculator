@@ -155,5 +155,8 @@ dist
 # Local History for Visual Studio Code
 .history/
 
+# CRA build output directory
+build
+
 # local dev database
 dev.sqlite3

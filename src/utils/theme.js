@@ -1,13 +1,13 @@
 import { createMuiTheme } from "@material-ui/core";
-import finkWoff1 from "../fonts/FinkHeavyRegular.woff";
-import finkWoff2 from "../fonts/FinkHeavyRegular.woff2";
-import arialRoundWoff from "../fonts/ArialRoundedBold.woff";
+import FinkHeavyRegular from "../fonts/FinkHeavyRegular.woff";
+import FinkHeavyRegular2 from "../fonts/FinkHeavyRegular.woff2";
+import ArialRoundedBold from "../fonts/ArialRoundedBold.woff";
 
 const finkHeavy = {
   fontFamily: "FinkHeavy",
   src: ` 
-    url(${finkWoff2}) format('woff2'),
-    url(${finkWoff1}) format('woff')
+    url(${FinkHeavyRegular2}) format('woff2'),
+    url(${FinkHeavyRegular}) format('woff')
     `,
   fontWeight: "normal",
   fontStyle: "normal",
@@ -19,7 +19,7 @@ const arialRound = {
   fontWeight: "normal",
   src: `
     local('Arial Rounded MT Bold'),
-    url(${arialRoundWoff}) format('woff')
+    url(${ArialRoundedBold}) format('woff')
     `,
 };
 

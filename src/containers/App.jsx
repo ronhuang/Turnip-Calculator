@@ -1,25 +1,40 @@
 import React from "react";
-import { CssBaseline, ThemeProvider, Container } from "@material-ui/core";
-import { useFilters, useTitle, theme } from "../utils";
-import { Title, Filter, Chart, Footer, Share } from "./";
+import { CssBaseline, ThemeProvider, Container, Box } from "@material-ui/core";
+import { useFilters, useTitle, theme, useShare } from "../utils";
+import { Title, Filter, Footer } from "../containers";
+import { ShareDialog, Chart } from "../components";
 
 const App = () => {
   useTitle();
   const { inputFilters, filters, saveFilters } = useFilters();
+  const {
+    onCloseShareModal,
+    showShareDialog,
+    openShareDialog,
+    shareFilters,
+  } = useShare(filters);
 
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Share filters={filters} />
-        <Container maxWidth="md">
-          <Title />
-          <Filter filters={inputFilters} onChange={saveFilters} />
-          <Chart filter={filters} />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth="md">
+        <Title />
+        <Box mx={[-1.5, 0]}>
+          <Filter
+            filters={inputFilters}
+            onChange={saveFilters}
+            openShareDialog={openShareDialog}
+          />
+          <Chart filters={filters} />
           <Footer />
-        </Container>
-      </ThemeProvider>
-    </>
+        </Box>
+      </Container>
+      <ShareDialog
+        open={showShareDialog}
+        filters={shareFilters}
+        onClose={onCloseShareModal}
+      />
+    </ThemeProvider>
   );
 };
 

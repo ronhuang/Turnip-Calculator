@@ -1,8 +1,9 @@
 {
-  "name": "turnip-price-bot",
-  "version": "1.0.0",
-  "main": "src/server.js",
+  "name": "turnip-calc",
+  "version": "1.8.0",
+  "author": "elxris",
   "license": "MIT",
+  "homepage": ".",
   "private": true,
   "scripts": {
     "start": "node -r esm src/server.js",
@@ -10,22 +11,35 @@
     "migrate": "knex migrate:latest"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.1",
     "nodemon": "^2.0.2",
     "sqlite3": "^4.1.1"
   },
   "dependencies": {
     "@line/bot-sdk": "^6.8.4",
-    "chart.js": "^2.9.3",
+    "chart.js": "2.9.3",
     "chartjs-node-canvas": "^3.0.6",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "i18next": "^19.3.4",
-    "i18next-browser-languagedetector": "^4.0.2",
+    "i18next": "19.4.1",
+    "i18next-browser-languagedetector": "4.0.2",
     "json-url": "^2.5.0",
     "knex": "^0.20.13",
-    "lodash.zip": "^4.2.0",
+    "lodash.zip": "4.2.0",
     "mysql": "^2.18.1"
-  }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "resolutions": {}
 }
