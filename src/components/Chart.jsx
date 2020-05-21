@@ -10,10 +10,8 @@ import { calculate } from "../utils";
 
 Chart.defaults.defaultFontFamily = "Arial Rounded MT Bold";
 
-const createGenerteData = (t) => (filter) => {
-  let { patterns, avgPattern, minMaxPattern, minWeekValue } = calculate(filter);
-
-  console.log(JSON.stringify({ patterns }));
+const createGenerteData = (t) => async (filter) => {
+  let { minMaxPattern, minWeekValue, quantiles } = await calculate(filter);
 
   const minMaxData = zip(...minMaxPattern);
 
@@ -46,19 +44,26 @@ const createGenerteData = (t) => (filter) => {
       borderColor: "#EF8341",
     },
     {
-      label: t("Average"),
-      data: avgPattern || new Array(12).fill(null),
-      backgroundColor: "#F0E16F",
-      borderColor: "#F0E16F",
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      fill: false,
-    },
-    {
       label: t("Maximum"),
       data: minMaxData[1] || new Array(12).fill(null),
-      backgroundColor: "#A5D5A5",
-      borderColor: "#A5D5A5",
+      backgroundColor: "#88c9a1",
+      borderColor: "#88c9a1",
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      fill: "+1",
+    },
+    {
+      label: t("Most Likely"),
+      data: quantiles[2] || new Array(12).fill(null),
+      backgroundColor: "#88b0c9",
+      borderColor: "#88b0c9",
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      fill: "+1",
+    },
+    {
+      label: "quantile25",
+      data: quantiles[0] || new Array(12).fill(null),
       pointRadius: 0,
       pointHoverRadius: 0,
       fill: false,
@@ -66,40 +71,12 @@ const createGenerteData = (t) => (filter) => {
     {
       label: t("Minimum"),
       data: minMaxData[0] || new Array(12).fill(null),
-      backgroundColor: "#88C9A1",
-      borderColor: "#88C9A1",
+      backgroundColor: "#c988b0",
+      borderColor: "#c988b0",
       pointRadius: 0,
       pointHoverRadius: 0,
-      fill: false,
+      fill: "-1",
     },
-    ...patterns.reduce((acc, pattern) => {
-      const minMaxData = zip(...pattern);
-      return [
-        ...acc,
-        {
-          label: "submax",
-          data: minMaxData[1] || new Array(12).fill(null),
-          backgroundColor: `RGBA(165, 213, 165, ${
-            pattern.probability * Math.log2(patterns.length + 1)
-          })`,
-          borderColor: `transparent`,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          fill: 3,
-        },
-        {
-          label: "submin",
-          data: minMaxData[0] || new Array(12).fill(null),
-          backgroundColor: `RGBA(136, 201, 161, ${
-            pattern.probability * Math.log2(patterns.length + 1)
-          })`,
-          borderColor: `transparent`,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          fill: 3,
-        },
-      ];
-    }, []),
   ];
 };
 
@@ -118,7 +95,22 @@ const chartOptions = {
   tooltips: {
     intersect: false,
     mode: "index",
-    filter: ({ datasetIndex }) => datasetIndex < 6,
+    filter: (item, data) => {
+      const label = data.datasets[item.datasetIndex].label;
+      return label !== "quantile25";
+    },
+    callbacks: {
+      label: (item, data) => {
+        const label = data.datasets[item.datasetIndex].label || "";
+        let value = item.value;
+        if (item.datasetIndex === 4) {
+          value = `${data.datasets[5].data[item.index]}-${
+            data.datasets[4].data[item.index]
+          }`;
+        }
+        return `${label}: ${value}`;
+      },
+    },
   },
   scales: {
     y: {
@@ -136,7 +128,7 @@ const chartOptions = {
   },
   legend: {
     labels: {
-      filter: ({ text = "" }) => !text.includes("sub"),
+      filter: ({ text = "" }) => text !== "quantile25",
     },
   },
 };
@@ -150,15 +142,17 @@ const ChartComponent = ({ filters }) => {
 
   // onMount effect
   useEffect(() => {
-    const ctx = canvas.current.getContext("2d");
-    chart.current = new Chart(ctx, {
-      type: "line",
-      data: {
-        datasets: generateData(filters),
-        labels: getLabels(),
-      },
-      options: chartOptions,
-    });
+    (async () => {
+      const ctx = canvas.current.getContext("2d");
+      chart.current = new Chart(ctx, {
+        type: "line",
+        data: {
+          datasets: await generateData(filters),
+          labels: getLabels(),
+        },
+        options: chartOptions,
+      });
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -173,10 +167,10 @@ const ChartComponent = ({ filters }) => {
 
   // Filters / Data effect
   useDebounce(
-    () => {
+    async () => {
       if (!chart.current) return;
       // regerates chart in the new
-      const newData = generateData(filters, t);
+      const newData = await generateData(filters, t);
       merge(chart.current.data.datasets, newData);
       chart.current.data.datasets.length = newData.length;
       chart.current.update();

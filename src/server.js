@@ -202,8 +202,10 @@ app.post("/webhook", line.middleware(config), (req, res) => {
 
 app.get("/chart/:id", async (req, res) => {
   const id = req.params.id;
-  const filter = await codec.decompress(id);
-  const img = await renderToBuffer(filter);
+  const filters = await codec.decompress(id);
+  const img = await renderToBuffer(
+    filters.map((filter) => (filter === 0 ? undefined : filter))
+  );
 
   res.writeHead(200, {
     "Content-Type": "image/png",

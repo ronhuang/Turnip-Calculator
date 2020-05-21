@@ -158,5 +158,8 @@ dist
 # CRA build output directory
 build
 
+# Locales file
+src/locales/index.js
+
 # local dev database
 dev.sqlite3
