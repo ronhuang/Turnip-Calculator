@@ -15,6 +15,7 @@
     "countries-list": "2.5.4",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.11.0",
+    "iso-639-3": "^2.1.0",
     "nodemon": "^2.0.2",
     "sqlite3": "^4.1.1"
   },
