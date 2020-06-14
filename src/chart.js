@@ -23,15 +23,19 @@ const canvasRenderService = new CanvasRenderService(
   }
 );
 
-const createGenerteData = (t) => async (filter) => {
-  let { minMaxPattern, minWeekValue, quantiles } = await calculate(filter);
+const createGenerteData = (t) => async (filters) => {
+  let quantileRange = 75;
+  let { minMaxPattern, minWeekValue, quantiles } = await calculate({
+    filters,
+    quantileRange,
+  });
 
   const minMaxData = zip(...minMaxPattern);
 
   return [
     {
       label: t("Buy Price"),
-      data: new Array(12).fill(filter[0] || null),
+      data: new Array(12).fill(filters[0] || null),
       fill: true,
       backgroundColor: "transparent",
       borderColor: "#7B6C53",
@@ -51,7 +55,7 @@ const createGenerteData = (t) => async (filter) => {
     },
     {
       label: t("Daily Price"),
-      data: Array.from({ length: 12 }, (v, i) => filter[i + 1] || null),
+      data: Array.from({ length: 12 }, (v, i) => filters[i + 1] || null),
       fill: false,
       backgroundColor: "#EF8341",
       borderColor: "#EF8341",

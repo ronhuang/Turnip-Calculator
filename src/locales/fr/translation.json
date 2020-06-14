@@ -30,5 +30,10 @@
     "shareButton": "Partager !",
     "closeButton": "Fermer",
     "shareDialogV2": "Partagez cette image !",
-    "Most Likely": "Le plus probable"
+    "Most Likely": "Le plus probable",
+    "All Patterns": "Tous les motifs",
+    "patternNames": "Fluctuation_Grand Pic_Diminution_Petit Pic",
+    "Pattern": "Motif",
+    "Chance": "Probabilités",
+    "mostLikelyInfo": "- L'intervalle de valeurs <1>le plus probable</1> est celui où <3></3> des prix des navets seront compris."
 }

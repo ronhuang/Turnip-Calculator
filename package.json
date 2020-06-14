@@ -1,6 +1,6 @@
 {
   "name": "turnip-calc",
-  "version": "2.1.0-build.7",
+  "version": "2.1.2-build.19",
   "author": "elxris",
   "license": "MIT",
   "homepage": ".",
@@ -12,9 +12,9 @@
     "migrate": "knex migrate:latest"
   },
   "devDependencies": {
-    "countries-list": "^2.5.4",
+    "countries-list": "2.5.4",
     "eslint": "6.8.0",
-    "eslint-config-prettier": "6.10.1",
+    "eslint-config-prettier": "6.11.0",
     "nodemon": "^2.0.2",
     "sqlite3": "^4.1.1"
   },
@@ -22,11 +22,11 @@
     "@line/bot-sdk": "^6.8.4",
     "chart.js": "2.9.3",
     "chartjs-node-canvas": "^3.0.6",
-    "d3-array": "^2.4.0",
+    "d3-array": "2.4.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "i18next": "19.4.1",
-    "i18next-browser-languagedetector": "4.0.2",
+    "i18next": "19.4.4",
+    "i18next-browser-languagedetector": "4.2.0",
     "json-url": "^2.5.0",
     "knex": "^0.20.13",
     "lodash.zip": "4.2.0",
